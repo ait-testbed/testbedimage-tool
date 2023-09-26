@@ -1,0 +1,2 @@
+[console_scripts]
+testbedimage = testbedimage.__main__:main

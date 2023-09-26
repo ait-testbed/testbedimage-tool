@@ -1,0 +1,6 @@
+rich
+pydantic~=1.10
+openstacksdk
+paramiko
+python-dateutil
+httpx

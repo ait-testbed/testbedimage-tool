@@ -1,0 +1,15 @@
+Metadata-Version: 2.1
+Name: testbedimage
+Version: 0.0.0
+Summary: Fetch images from openstack and deploy it via SFTP.
+Author-email: Wolfgang Hotwagner <wolfgang.hotwagner@ait.ac.at>
+License: GPL-3.0
+Keywords: Testbed,AECID,OpenStack,SFTP,Image
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+Requires-Dist: rich
+Requires-Dist: pydantic~=1.10
+Requires-Dist: openstacksdk
+Requires-Dist: paramiko
+Requires-Dist: python-dateutil
+Requires-Dist: httpx
