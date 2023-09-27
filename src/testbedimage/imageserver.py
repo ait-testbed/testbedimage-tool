@@ -1,5 +1,7 @@
 import openstack
 from dateutil import parser
+from .manifest import ImageMeta
+from pathlib import Path
 
 
 class ImageServer:
@@ -28,3 +30,17 @@ class ImageServer:
 
     def download(self, image: openstack.image.v2.image.Image):
         return self.conn.image.download_image(image, stream=True)
+
+    def import_image(self, imgmeta: ImageMeta, baseurl: str,
+                     visibility: str = "private"
+                     ) -> openstack.image.v2.image.Image:
+        url = baseurl + "/" + imgmeta.name
+        img_name = Path(imgmeta.name).stem
+        kwargs = dict(name=img_name,
+                      disk_format=imgmeta.disk_format,
+                      container_format=imgmeta.container_format,
+                      visibility=visibility)
+
+        image = self.conn.image.create_image(**kwargs)
+        self.conn.image.import_image(image, method="web-download", uri=url)
+        return image

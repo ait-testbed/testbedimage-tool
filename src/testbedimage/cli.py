@@ -81,3 +81,29 @@ def get(args):
         tbi.get_images(webcfg)
     except Exception as e:
         logger.critical(e)
+
+
+@subcommand([argument("-u", "--url", help="url to the images",
+                      default="https://aecidimages.ait.ac.at/current"),
+            argument("-d", "--debug", action='store_true')])
+def import_images(args):
+    logger = logging.getLogger("rich")
+    if args.debug:
+        logger.setLevel(logging.DEBUG)
+
+    webcfg = Webconfig(url=args.url)
+    tbi = TestbedImage()
+    try:
+        tbi.import_images(webcfg)
+    except Exception as e:
+        logger.critical(e)
+
+
+@subcommand()
+def list_images(args):
+    logger = logging.getLogger("rich")
+    tbi = TestbedImage()
+    try:
+        tbi.list_images()
+    except Exception as e:
+        logger.critical(e)
