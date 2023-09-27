@@ -113,18 +113,10 @@ class TestbedImage(SFTPClient, HttpClient):
         self.logger.info("Checking openstack connection...")
         imageserver = ImageServer()
         imageserver.test_connection()
-        table = Table(title="Status of uploaded images")
-        table.add_column("Name", style="magenta")
-        table.add_column("Status", style="cyan")
-        for image in self.image_list:
-            ret = imageserver.find_image_by_name(image)
-            table.add_row(ret.name, ret.status)
-        console = Console()
-        console.print(table)
-        # mfst = self.get_manifest(webcfg.url + "/" + webcfg.manifest)
-        # for image in mfst.images:
-        #     print(image)
-        # self.http_down_and_upload_images(webcfg.url, mfst.images[0])
+        mfst = self.get_manifest(webcfg.url + "/" + webcfg.manifest)
+        for image in mfst.images:
+            print(image)
+        self.http_down_and_upload_images(webcfg.url, mfst.images[0])
 
     def import_images(self, webcfg: Webconfig):
         self.logger.info("Checking openstack connection...")
