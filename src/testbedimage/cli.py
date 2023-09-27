@@ -3,6 +3,14 @@ import logging
 from .testbedimage import TestbedImage
 from .config import SSHConfig, Webconfig
 
+
+DEFAULT_IMAGE_LIST = ("atb-videoserver-image,"
+                      "atb-adminpc-image,"
+                      "atb-attacker-image,"
+                      "atb-corpdns-image,"
+                      "atb-fw-inet-lan-dmz-image")
+
+
 cli = ArgumentParser()
 subparsers = cli.add_subparsers(dest="subcommand")
 
@@ -41,7 +49,9 @@ def subcommand(args=[], parent=subparsers):
 #     print("Nothing special!")
 
 
-@subcommand([argument("-s", "--ssh-server"),
+@subcommand([argument("-I", "--images", help="imagenames seperated by comma",
+                      default=DEFAULT_IMAGE_LIST),
+             argument("-s", "--ssh-server"),
              argument("-P", "--ssh-port", type=int, default=22),
              argument("-u", "--ssh-user"),
              argument("-p", "--ssh-pass"),
@@ -61,6 +71,7 @@ def deploy(args):
                           directory=args.ssh_directory,
                           keyfile=args.ssh_keyfile)
     tbi = TestbedImage()
+    tbi.image_list = args.images.split(",")
     try:
         tbi.deploy_images(sshconfig)
     except Exception as e:
@@ -83,9 +94,11 @@ def get(args):
         logger.critical(e)
 
 
-@subcommand([argument("-u", "--url", help="url to the images",
+@subcommand([argument("-I", "--images", help="imagenames seperated by comma",
+                      default=DEFAULT_IMAGE_LIST),
+             argument("-u", "--url", help="url to the images",
                       default="https://aecidimages.ait.ac.at/current"),
-            argument("-d", "--debug", action='store_true')])
+             argument("-d", "--debug", action='store_true')])
 def import_images(args):
     logger = logging.getLogger("rich")
     if args.debug:
@@ -93,16 +106,19 @@ def import_images(args):
 
     webcfg = Webconfig(url=args.url)
     tbi = TestbedImage()
+    tbi.image_list = args.images.split(",")
     try:
         tbi.import_images(webcfg)
     except Exception as e:
         logger.critical(e)
 
 
-@subcommand()
+@subcommand([argument("-I", "--images", help="imagenames seperated by comma",
+                      default=DEFAULT_IMAGE_LIST)])
 def list_images(args):
     logger = logging.getLogger("rich")
     tbi = TestbedImage()
+    tbi.image_list = args.images.split(",")
     try:
         tbi.list_images()
     except Exception as e:
