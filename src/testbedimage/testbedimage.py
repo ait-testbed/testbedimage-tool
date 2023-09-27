@@ -133,3 +133,23 @@ class TestbedImage(SFTPClient, HttpClient):
                 image_list.append(ret)
                 progress.update(task, advance=1)
         self.list_images(image_list)
+
+    def manifest(self, webcfg: Webconfig):
+        mfst = self.get_manifest(webcfg.url + "/" + webcfg.manifest)
+        console = Console()
+        url = webcfg.url + "/" + webcfg.manifest
+        console.print(f"Manifest-Url: {url}")
+        console.print(f"Date: {mfst.date}")
+        for imgmeta in mfst.images:
+            table = Table()
+            inner = Table(show_header=False)
+            inner.add_column(None, style="white")
+            inner.add_column()
+            table.add_column(imgmeta.name, style="cyan")
+            inner.add_row("[bold]sha256sum:", imgmeta.sha256sum)
+            inner.add_row("[bold]md5sum:", imgmeta.md5sum)
+            inner.add_row("[bold]disk:", imgmeta.disk_format)
+            inner.add_row("[bold]container:", imgmeta.container_format)
+            inner.add_row("[bold]size:", str(imgmeta.size))
+            table.add_row(inner)
+            console.print(table)

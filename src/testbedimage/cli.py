@@ -123,3 +123,15 @@ def list_images(args):
         tbi.list_images()
     except Exception as e:
         logger.critical(e)
+
+
+@subcommand([argument("-u", "--url", help="url to the images",
+                      default="https://aecidimages.ait.ac.at/current")])
+def manifest(args):
+    logger = logging.getLogger("rich")
+    tbi = TestbedImage()
+    webcfg = Webconfig(url=args.url)
+    try:
+        tbi.manifest(webcfg)
+    except Exception as e:
+        logger.critical(e)
