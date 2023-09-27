@@ -7,6 +7,7 @@ class ImageMeta(BaseModel):
     sha256sum: str
     compression: Literal['bz']
     disk_format: str
+    container_format: str = 'bare'
     size: int = 0
 
 

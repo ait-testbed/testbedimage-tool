@@ -45,7 +45,7 @@ class TestbedImage(SFTPClient, HttpClient):
             size = 0
 
             with Progress() as progress:
-                msg = "[cyan]Deploying {image.name}..."
+                msg = f"[cyan]Deploying {image.name}..."
                 task = progress.add_task(msg, total=image.size)
                 for chunk in response.iter_content(chunk_size=1024 * 1024):
                     md5.update(chunk)
@@ -67,7 +67,8 @@ class TestbedImage(SFTPClient, HttpClient):
         return ImageMeta(name=image.name + ".bz",
                          sha256sum=endsum.hexdigest(),
                          disk_format=image.disk_format,
-                         size=size,
+                         container_format=image.container_format,
+                         size=image.size,
                          compression='bz')
 
     def deploy_images(self, sshcfg: SSHConfig):
