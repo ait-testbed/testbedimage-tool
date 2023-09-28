@@ -14,15 +14,16 @@ pip3 install .
 Import all current OpenStack-images to your OpenStack-project:
 
 ```
+$ export REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
 $ . myproject-openrc.sh
 $ testbedimage import_images
 ```
 
-## Documentation
+# Documentation
 
 * [Documentation](https://aeciddocs.ait.ac.at/testbedimage/current/index.html)
 * [Installation](https://aeciddocs.ait.ac.at/testbedimage/current/installation.html)
 
-## License
+# License
 
 [GPL-3.0](LICENSE)
