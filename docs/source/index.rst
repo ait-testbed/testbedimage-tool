@@ -11,6 +11,7 @@ Testbedimage
    :caption: Contents:
 
    installation
+   config
 
 .. toctree::
    :maxdepth: 2
