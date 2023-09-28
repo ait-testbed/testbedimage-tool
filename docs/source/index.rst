@@ -18,6 +18,7 @@ Testbedimage
 
    import
    list
+   delete
    manifest
    deploy
 
