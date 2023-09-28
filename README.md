@@ -9,6 +9,15 @@ It can also deploy images from the openstack imageserver to a image-repository(s
 pip3 install .
 ```
 
+# Usage
+
+Import all current OpenStack-images to your OpenStack-project:
+
+```
+$ . myproject-openrc.sh
+$ testbedimage import_images
+```
+
 ## Documentation
 
 * [Documentation](https://aeciddocs.ait.ac.at/testbedimage/current/index.html)
