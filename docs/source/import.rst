@@ -19,8 +19,6 @@ Command-Line Options
 
   options:
     -h, --help            show this help message and exit
-    -I IMAGES, --images IMAGES
-                          imagenames seperated by comma
     -u URL, --url URL     url to the images
     -d, --debug
 
