@@ -97,9 +97,7 @@ def proxy_import(args):
         logger.critical(e)
 
 
-@subcommand([argument("-I", "--images", help="imagenames seperated by comma",
-                      default=DEFAULT_IMAGE_LIST),
-             argument("-u", "--url", help="url to the images",
+@subcommand([argument("-u", "--url", help="url to the images",
                       default="https://aecidimages.ait.ac.at/current"),
              argument("-d", "--debug", action='store_true')])
 def import_images(args):
@@ -109,7 +107,6 @@ def import_images(args):
 
     webcfg = Webconfig(url=args.url)
     tbi = TestbedImage()
-    tbi.image_list = args.images.split(",")
     try:
         tbi.import_images(webcfg)
     except Exception as e:
