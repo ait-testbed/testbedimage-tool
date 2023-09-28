@@ -44,3 +44,6 @@ class ImageServer:
         image = self.conn.image.create_image(**kwargs)
         self.conn.image.import_image(image, method="web-download", uri=url)
         return image
+
+    def delete_image(self, img: openstack.image.v2.image.Image):
+        self.conn.image.delete_image(img, ignore_missing=True)

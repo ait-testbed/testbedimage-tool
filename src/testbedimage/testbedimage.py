@@ -11,6 +11,7 @@ import hashlib
 from rich.progress import Progress
 from rich.table import Table
 from rich.console import Console
+from rich.prompt import Prompt
 
 
 class TestbedImage(SFTPClient, HttpClient):
@@ -100,6 +101,8 @@ class TestbedImage(SFTPClient, HttpClient):
         table.add_column("Status", style="red")
         for image in images:
             ret = imageserver.find_image_by_name(image)
+            if not ret:
+                continue
             if ret.status == "active":
                 table.add_row(ret.name, f"[green]{ret.status}")
             elif ret.status == "importing":
@@ -108,6 +111,20 @@ class TestbedImage(SFTPClient, HttpClient):
                 table.add_row(ret.name, ret.status)
         console = Console()
         console.print(table)
+
+    def delete_images(self, images: Optional[list[str]] = None):
+        if not images:
+            images = self.image_list
+        imageserver = ImageServer()
+        for image in images:
+            ret = imageserver.find_image_by_name(image)
+            msg = f"Do you really want to delete {ret.name}?"
+            choice = Prompt.ask(msg, choices=["y", "N"], default="N")
+            if choice == "y":
+                self.logger.info(f"Deleting {ret.name}...")
+                imageserver.delete_image(ret)
+            else:
+                self.logger.info(f"Abort deleting {ret.name}...")
 
     def get_images(self, webcfg: Webconfig):
         self.logger.info("Checking openstack connection...")

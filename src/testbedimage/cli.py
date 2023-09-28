@@ -125,6 +125,18 @@ def list_images(args):
         logger.critical(e)
 
 
+@subcommand([argument("-I", "--images", help="imagenames seperated by comma",
+                      default=DEFAULT_IMAGE_LIST)])
+def delete_images(args):
+    logger = logging.getLogger("rich")
+    tbi = TestbedImage()
+    tbi.image_list = args.images.split(",")
+    try:
+        tbi.delete_images()
+    except Exception as e:
+        logger.critical(e)
+
+
 @subcommand([argument("-u", "--url", help="url to the images",
                       default="https://aecidimages.ait.ac.at/current")])
 def manifest(args):
