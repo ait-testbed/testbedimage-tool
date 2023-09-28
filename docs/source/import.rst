@@ -2,10 +2,14 @@
 Importing Images
 ================
 
-The ``import_images`` subcommand fetches the manifest from the image-server. It reads
-from the manifest file the image locations and starts a web-import for those images
-at the Openstack. Even if the testbedimage-tool initiates the web-import, it is important
-to know that the Openstack will download the images directly from the image-server.
+The ``import_images`` subcommand fetches the manifest from the image-server. After that
+it extracts the image locations. Finally it starts a web-import for those images
+at the Openstack.
+
+.. note::
+
+   Even if the testbedimage-tool initiates the web-import, it is important
+   to know that the Openstack will download the images directly from the image-server.
 
 
 .. image:: images/Import_Images.png
