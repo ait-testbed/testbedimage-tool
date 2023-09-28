@@ -80,13 +80,16 @@ def deploy(args):
 
 @subcommand([argument("-u", "--url", help="Url to the images",
                       default="https://aecidimages.ait.ac.at/current"),
+             argument("-L", "--local-path",
+                      help="Local directory to store the images",
+                      default="./"),
              argument("-d", "--debug", action='store_true')])
-def get(args):
+def proxy_import(args):
     logger = logging.getLogger("rich")
     if args.debug:
         logger.setLevel(logging.DEBUG)
 
-    webcfg = Webconfig(url=args.url)
+    webcfg = Webconfig(url=args.url, local_path=args.local_path)
     tbi = TestbedImage()
     try:
         tbi.get_images(webcfg)

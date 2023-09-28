@@ -47,3 +47,17 @@ class ImageServer:
 
     def delete_image(self, img: openstack.image.v2.image.Image):
         self.conn.image.delete_image(img, ignore_missing=True)
+
+    def upload_image(self, imgpath: str,
+                     imgmeta: ImageMeta, visibility: str = "private"):
+        data = None
+
+        with open(imgpath, "rb") as file:
+            data = file.read()
+
+        image_attrs = {'name': imgmeta.name,
+                       'data': data,
+                       'disk_format': imgmeta.disk_format,
+                       'container_format': imgmeta.container_format,
+                       'visibility': visibility}
+        self.conn.image.upload_image(**image_attrs)

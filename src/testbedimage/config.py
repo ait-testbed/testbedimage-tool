@@ -15,3 +15,4 @@ class SSHConfig(BaseModel):
 class Webconfig(BaseModel):
     url: str = "https://aecidimages.ait.ac.at/current"
     manifest: str = "Manifest.json"
+    local_path: str = "./"

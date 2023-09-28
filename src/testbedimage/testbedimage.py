@@ -8,6 +8,7 @@ from typing import Optional
 import openstack
 import logging
 import hashlib
+import os
 from rich.progress import Progress
 from rich.table import Table
 from rich.console import Console
@@ -82,15 +83,26 @@ class TestbedImage(SFTPClient, HttpClient):
         self.logger.info("Creating current-link on SFTP-Server...")
         self.current_link()
 
-    def http_down_and_upload_images(self, baseurl: str, image: ImageMeta):
+    def http_get_image(self, baseurl: str,
+                       local_path: str, image: ImageMeta) -> str:
         endsum = hashlib.sha256()
-        with self.get_webstream(baseurl + "/" + image.name) as stream:
-            for chunk in stream.iter_bytes():
-                endsum.update(chunk)
-                print("TODO")
+
+        local_file = os.path.join(local_path, image.name)
+        url = baseurl + "/" + image.name
+        self.logger.debug(f"Url: {url}")
+        self.logger.debug(f"Local path: {local_file}")
+
+        with self.get_webstream(url) as stream:
+            with open(local_path + "/" + image.name, "wb") as imgfile:
+                for chunk in stream.iter_bytes():
+                    endsum.update(chunk)
+                    imgfile.write(chunk)
+                imgfile.flush()
+
         if endsum.hexdigest() != image.sha256sum:
             msg = f"sha256sum does not match for {image.name}"
             raise TestbedException(msg)
+        return local_file
 
     def list_images(self, images: Optional[list[str]] = None):
         if not images:
@@ -131,9 +143,17 @@ class TestbedImage(SFTPClient, HttpClient):
         imageserver = ImageServer()
         imageserver.test_connection()
         mfst = self.get_manifest(webcfg.url + "/" + webcfg.manifest)
-        for image in mfst.images:
-            print(image)
-        self.http_down_and_upload_images(webcfg.url, mfst.images[0])
+        with Progress() as progress:
+            msg = "Starting Imagetransfer..."
+            task = progress.add_task(msg, total=len(mfst.images) * 2)
+            for imgmeta in mfst.images:
+                self.logger.info(f"Downloading {imgmeta.name}")
+                imgfile = self.http_get_image(webcfg.url,
+                                              webcfg.local_path, imgmeta)
+                progress.update(task, advance=1)
+                self.logger.info(f"Uploading {imgmeta.name} to Openstack")
+                imageserver.upload_image(imgfile, imgmeta)
+                progress.update(task, advance=1)
 
     def import_images(self, webcfg: Webconfig):
         self.logger.info("Checking openstack connection...")
