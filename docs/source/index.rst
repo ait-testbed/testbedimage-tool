@@ -22,11 +22,3 @@ Testbedimage
    delete
    manifest
    deploy
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
