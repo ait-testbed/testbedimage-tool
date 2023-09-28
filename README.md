@@ -12,7 +12,6 @@ pip3 install .
 ## Documentation
 
 
-
 ## License
 
 [GPL-3.0](LICENSE)
