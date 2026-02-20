@@ -112,7 +112,7 @@ class TestbedImage(SFTPClient, HttpClient):
         table.add_column("Name", style="cyan")
         table.add_column("Status", style="red")
         for image in images:
-            ret = imageserver.find_image_by_name(image)
+            ret = imageserver.find_image_by_name(image.name)
             if not ret:
                 continue
             if ret.status == "active":
@@ -129,7 +129,7 @@ class TestbedImage(SFTPClient, HttpClient):
             images = self.image_list
         imageserver = ImageServer()
         for image in images:
-            ret = imageserver.find_image_by_name(image)
+            ret = imageserver.find_image_by_name(image.name)
             msg = f"Do you really want to delete {ret.name}?"
             choice = Prompt.ask(msg, choices=["y", "N"], default="N")
             if choice == "y":
