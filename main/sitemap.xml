@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+         <loc>https://ait-testbed.github.io/testbedimage-tool/main/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://ait-testbed.github.io/testbedimage-tool/main/configuration/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://ait-testbed.github.io/testbedimage-tool/main/delete/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://ait-testbed.github.io/testbedimage-tool/main/deploy/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://ait-testbed.github.io/testbedimage-tool/main/import/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://ait-testbed.github.io/testbedimage-tool/main/installation/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://ait-testbed.github.io/testbedimage-tool/main/list/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+    <url>
+         <loc>https://ait-testbed.github.io/testbedimage-tool/main/manifest/</loc>
+         <lastmod>2026-08-05</lastmod>
+    </url>
+</urlset>
