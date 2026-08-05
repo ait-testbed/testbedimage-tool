@@ -11,7 +11,7 @@ The `import_images` subcommand fetches the manifest from the image-server. After
 ## Command-Line Options
 
 ```
-usage: testbedimage import_images [-h] [-I IMAGES] [-u URL] [-d]
+usage: testbedimage import_images [-h] [-u URL] [-d]
 
 options:
   -h, --help            show this help message and exit

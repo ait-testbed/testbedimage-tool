@@ -60,7 +60,7 @@ options:
 
   Type: str
 
-  Default: `"."`
+  Default: `""`
 
 `-i SSH_KEYFILE, --ssh-keyfile SSH_KEYFILE`
 : Keyfile to use to login to the SFTP-serfver.
