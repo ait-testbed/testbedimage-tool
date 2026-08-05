@@ -1,0 +1,21 @@
+site_name: Testbedimage
+site_url: https://ait-testbed.github.io/testbedimage-tool/
+docs_dir: mkdocs
+
+theme:
+  name: readthedocs
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Installation: installation.md
+    - Configuration: configuration.md
+  - Usage:
+    - Import Images: import.md
+    - List Images: list.md
+    - Delete Images: delete.md
+    - Print Manifest: manifest.md
+    - Deploy Images: deploy.md
+
+markdown_extensions:
+  - admonition
