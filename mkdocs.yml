@@ -1,6 +1,5 @@
 site_name: Testbedimage
 site_url: https://ait-testbed.github.io/testbedimage-tool/
-docs_dir: mkdocs
 
 theme:
   name: readthedocs

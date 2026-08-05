@@ -21,8 +21,8 @@ $ testbedimage import_images
 
 # Documentation
 
-* [Documentation](https://aeciddocs.ait.ac.at/testbedimage/current/index.html)
-* [Installation](https://aeciddocs.ait.ac.at/testbedimage/current/installation.html)
+* [Documentation](https://ait-testbed.github.io/testbedimage-tool/)
+* [Installation](https://ait-testbed.github.io/testbedimage-tool/latest/installation/)
 
 # License
 
