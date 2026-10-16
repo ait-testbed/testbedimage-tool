@@ -1,10 +1,10 @@
 from .imageserver import ImageServer
 from .testbedexception import TestbedException
 from .sftpclient import SFTPClient
-from .config import SSHConfig, Webconfig
+from .config import SSHConfig, S3Config, Webconfig
 from .manifest import Manifest, ImageMeta
 from .httpclient import HttpClient
-from typing import Optional
+from typing import Optional, Union
 import openstack
 import logging
 import hashlib
@@ -67,7 +67,9 @@ class TestbedImage(SFTPClient, HttpClient):
                          container_format=image.container_format,
                          size=image.size)
 
-    def deploy_images(self, sshcfg: SSHConfig):
+    def deploy_images(self, sshcfg: Union[SSHConfig, S3Config]):
+        if isinstance(sshcfg, S3Config):
+            return self._deploy_images_s3(sshcfg)
         self.logger.info("Checking images...")
         images = self.check_images()
         self.logger.info("Connecting to SFTP-Server...")
@@ -82,6 +84,51 @@ class TestbedImage(SFTPClient, HttpClient):
             self.upload_manifest(mfst)
         self.logger.info("Creating current-link on SFTP-Server...")
         self.current_link()
+
+    def _deploy_images_s3(self, config: S3Config):
+        from .s3client import S3Client
+
+        self.logger.info("Checking images...")
+        images = self.check_images()
+        client = S3Client(config)
+        mfst = Manifest(date=client.create_directory())
+        for image in images:
+            imgmeta = self._download_image_s3(image, client)
+            mfst.images.append(imgmeta)
+            self.logger.info("Updating Manifest...")
+            client.upload_manifest(mfst)
+
+    def _download_image_s3(self, image, client) -> ImageMeta:
+        response = ImageServer().download(image)
+        md5 = hashlib.md5()
+        sha256sum = hashlib.sha256()
+        try:
+            with Progress() as progress:
+                task = progress.add_task(f"[cyan]Deploying {image.name}...",
+                                         total=image.size)
+
+                def chunks():
+                    for chunk in response.iter_content(chunk_size=1024 * 1024):
+                        md5.update(chunk)
+                        sha256sum.update(chunk)
+                        progress.update(task, advance=len(chunk))
+                        yield chunk
+                    # Validate before returning EOF to the managed transfer:
+                    # a mismatch must prevent PUT/multipart completion.
+                    if response.headers["Content-MD5"] != md5.hexdigest():
+                        raise Exception(
+                            "Checksum mismatch in downloaded content")
+
+                client.upload_stream(image.name + ".img", chunks(), image.size)
+        finally:
+            response.close()
+
+        return ImageMeta(name=image.name + ".img",
+                         sha256sum=sha256sum.hexdigest(),
+                         md5sum=md5.hexdigest(),
+                         disk_format=image.disk_format,
+                         container_format=image.container_format,
+                         size=image.size)
 
     def http_get_image(self, baseurl: str,
                        local_path: str, image: ImageMeta) -> str:

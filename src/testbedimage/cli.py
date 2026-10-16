@@ -1,7 +1,7 @@
 from argparse import ArgumentParser
 import logging
 from .testbedimage import TestbedImage
-from .config import SSHConfig, Webconfig
+from .config import SSHConfig, S3Config, Webconfig
 
 
 DEFAULT_IMAGE_LIST = ("atb-videoserver-image,"
@@ -58,11 +58,34 @@ def subcommand(args=[], parent=subparsers):
              argument("-k", "--ssh-passphrase"),
              argument("-t", "--ssh-directory", default=""),
              argument("-i", "--ssh-keyfile"),
+             argument("--s3-bucket"),
+             argument("--s3-endpoint"),
+             argument("--s3-region"),
+             argument("--s3-prefix"),
+             argument("--s3-profile"),
              argument("-d", "--debug", action='store_true')])
 def deploy(args):
     logger = logging.getLogger("rich")
     if args.debug:
         logger.setLevel(logging.DEBUG)
+
+    if any(value is not None for value in (
+            args.s3_bucket, args.s3_endpoint, args.s3_region,
+            args.s3_prefix, args.s3_profile)):
+        if not args.s3_bucket:
+            cli.error("S3 destination options require --s3-bucket")
+        config = S3Config(bucket=args.s3_bucket,
+                          endpoint_url=args.s3_endpoint,
+                          region=args.s3_region, prefix=args.s3_prefix or "",
+                          profile=args.s3_profile)
+        try:
+            tbi = TestbedImage()
+            tbi.image_list = args.images.split(",")
+            tbi.deploy_images(config)
+        except Exception as e:
+            logger.critical(e)
+            raise SystemExit(1)
+        return 0
 
     sshconfig = SSHConfig(server=args.ssh_server,
                           port=args.ssh_port,

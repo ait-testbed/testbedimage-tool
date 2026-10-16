@@ -21,7 +21,9 @@ def main():
     if args.subcommand is None:
         cli.print_help()
     else:
-        args.func(args)
+        result = args.func(args)
+        if result is not None:
+            sys.exit(result)
 
     sys.exit(1)
 
