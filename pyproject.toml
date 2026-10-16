@@ -14,7 +14,8 @@ dependencies = [
     "openstacksdk",
     "paramiko",
     "python-dateutil",
-    "httpx"
+    "httpx",
+    "boto3>=1.33"
 ]
 dynamic = ["version"]
 

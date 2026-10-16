@@ -69,3 +69,21 @@ options:
 
 `-d`
 : Enables debug-output.
+
+## Deploy to S3
+
+Run from the repository root:
+
+```sh
+uv run testbedimage deploy \
+  --s3-bucket attackbed \
+  --s3-endpoint https://s3.eu-west-par.io.cloud.ovh.net \
+  --s3-region eu-west-par \
+  --s3-prefix images \
+  --s3-profile attackbed-paris
+```
+
+Uploads images and `Manifest.json` under `<prefix>/<timestamp>/`, without a
+`current` object. Prefix and credentials profile are optional; omit the
+endpoint for AWS S3. Completed images remain on failure. Configure a bucket
+lifecycle rule to clean up abandoned multipart uploads.

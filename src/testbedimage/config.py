@@ -16,3 +16,11 @@ class Webconfig(BaseModel):
     url: str = "https://aecidimages.ait.ac.at/current"
     manifest: str = "Manifest.json"
     local_path: str = "./"
+
+
+class S3Config(BaseModel):
+    bucket: str
+    endpoint_url: Optional[str] = None
+    region: Optional[str] = None
+    prefix: str = ""
+    profile: Optional[str] = None

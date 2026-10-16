@@ -1,14 +1,15 @@
 from .imageserver import ImageServer
 from .testbedexception import TestbedException
 from .sftpclient import SFTPClient
-from .config import SSHConfig, Webconfig
+from .config import SSHConfig, S3Config, Webconfig
 from .manifest import Manifest, ImageMeta
 from .httpclient import HttpClient
-from typing import Optional
+from typing import Optional, Union
 import openstack
 import logging
 import hashlib
 import os
+from pathlib import Path
 from rich.progress import Progress
 from rich.table import Table
 from rich.console import Console
@@ -67,7 +68,9 @@ class TestbedImage(SFTPClient, HttpClient):
                          container_format=image.container_format,
                          size=image.size)
 
-    def deploy_images(self, sshcfg: SSHConfig):
+    def deploy_images(self, sshcfg: Union[SSHConfig, S3Config]):
+        if isinstance(sshcfg, S3Config):
+            return self._deploy_images_s3(sshcfg)
         self.logger.info("Checking images...")
         images = self.check_images()
         self.logger.info("Connecting to SFTP-Server...")
@@ -82,6 +85,51 @@ class TestbedImage(SFTPClient, HttpClient):
             self.upload_manifest(mfst)
         self.logger.info("Creating current-link on SFTP-Server...")
         self.current_link()
+
+    def _deploy_images_s3(self, config: S3Config):
+        from .s3client import S3Client
+
+        self.logger.info("Checking images...")
+        images = self.check_images()
+        client = S3Client(config)
+        mfst = Manifest(date=client.create_directory())
+        for image in images:
+            imgmeta = self._download_image_s3(image, client)
+            mfst.images.append(imgmeta)
+            self.logger.info("Updating Manifest...")
+            client.upload_manifest(mfst)
+
+    def _download_image_s3(self, image, client) -> ImageMeta:
+        response = ImageServer().download(image)
+        md5 = hashlib.md5()
+        sha256sum = hashlib.sha256()
+        try:
+            with Progress() as progress:
+                task = progress.add_task(f"[cyan]Deploying {image.name}...",
+                                         total=image.size)
+
+                def chunks():
+                    for chunk in response.iter_content(chunk_size=1024 * 1024):
+                        md5.update(chunk)
+                        sha256sum.update(chunk)
+                        progress.update(task, advance=len(chunk))
+                        yield chunk
+                    # Validate before returning EOF to the managed transfer:
+                    # a mismatch must prevent PUT/multipart completion.
+                    if response.headers["Content-MD5"] != md5.hexdigest():
+                        raise Exception(
+                            "Checksum mismatch in downloaded content")
+
+                client.upload_stream(image.name + ".img", chunks(), image.size)
+        finally:
+            response.close()
+
+        return ImageMeta(name=image.name + ".img",
+                         sha256sum=sha256sum.hexdigest(),
+                         md5sum=md5.hexdigest(),
+                         disk_format=image.disk_format,
+                         container_format=image.container_format,
+                         size=image.size)
 
     def http_get_image(self, baseurl: str,
                        local_path: str, image: ImageMeta) -> str:
@@ -155,12 +203,17 @@ class TestbedImage(SFTPClient, HttpClient):
                 imageserver.upload_image(imgfile, imgmeta)
                 progress.update(task, advance=1)
 
-    def import_images(self, webcfg: Webconfig):
+    def import_images(self, webcfg: Union[Webconfig, S3Config],
+                      images: Optional[list[str]] = None):
+        if isinstance(webcfg, S3Config):
+            return self._import_images_s3(webcfg, images)
         self.logger.info("Checking openstack connection...")
         image_list = []
         imageserver = ImageServer()
         imageserver.test_connection()
         mfst = self.get_manifest(webcfg.url + "/" + webcfg.manifest)
+        if images is not None:
+            mfst.images = self._select_images(mfst, images)
         with Progress() as progress:
             msg = "Starting imageimport..."
             task = progress.add_task(msg, total=len(mfst.images))
@@ -170,6 +223,44 @@ class TestbedImage(SFTPClient, HttpClient):
                 image_list.append(ret)
                 progress.update(task, advance=1)
         self.list_images(list(map(lambda i: i.name, image_list)))
+
+    def _select_images(self, manifest: Manifest, names):
+        if names is None:
+            return manifest.images
+        missing = set(names)
+        selected = []
+        for image in manifest.images:
+            aliases = {image.name, Path(image.name).stem}
+            if aliases.intersection(names):
+                selected.append(image)
+                missing.difference_update(aliases)
+        if missing:
+            raise TestbedException("Images not in manifest: " +
+                                   ", ".join(sorted(missing)))
+        return selected
+
+    def _import_images_s3(self, config: S3Config, names):
+        from .s3client import S3Client
+
+        client = S3Client(config)
+        images = self._select_images(client.get_manifest(), names)
+        imageserver = ImageServer()
+        with Progress() as progress:
+            task = progress.add_task("Starting S3 import...",
+                                     total=len(images))
+            for image in images:
+                self.logger.info("Importing %s from S3...", image.name)
+                obj = client.get_object(image.name)
+                body = obj["Body"]
+                try:
+                    size = obj["ContentLength"]
+                    if size != image.size:
+                        raise TestbedException(
+                            f"Size mismatch for {image.name}")
+                    imageserver.import_image_stream(image, body, size)
+                finally:
+                    body.close()
+                progress.update(task, advance=1)
 
     def manifest(self, webcfg: Webconfig):
         mfst = self.get_manifest(webcfg.url + "/" + webcfg.manifest)
