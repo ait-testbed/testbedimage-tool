@@ -1,19 +1,13 @@
 # Installation
 
-The testbedimage tool can be installed manually from the source or by installing the package from the repository.
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/), then:
 
-## From Repository
-
-The most comfortable way of installing testbedimage is by using pip:
-
-```bash
-pip3 install testbedimage
+```sh
+git clone https://github.com/ait-testbed/testbedimage-tool.git
+cd testbedimage-tool
+uv sync
+uv run testbedimage --help
 ```
 
-## From Source
-
-Installing testbedimage manually can be done using pip:
-
-```bash
-pip3 install .
-```
+Load your [OpenStack configuration](configuration.md) before deploying or
+importing images. Run commands from the repository root.

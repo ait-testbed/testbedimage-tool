@@ -5,8 +5,10 @@ It can also deploy images from the openstack imageserver to a image-repository(s
 
 # Install
 
-```
-pip3 install .
+From the repository root, using [uv](https://docs.astral.sh/uv/getting-started/installation/):
+
+```sh
+uv sync
 ```
 
 # Usage
@@ -16,7 +18,7 @@ Import all current OpenStack-images to your OpenStack-project:
 ```
 $ export REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
 $ . myproject-openrc.sh
-$ testbedimage import_images
+$ uv run testbedimage import_images
 ```
 
 # Documentation
