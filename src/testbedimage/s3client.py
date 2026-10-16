@@ -1,4 +1,4 @@
-"""S3-only deployment helpers; SFTP and import behavior stay independent."""
+"""S3 deployment and release-reading helpers."""
 
 from datetime import datetime
 
@@ -72,3 +72,14 @@ class S3Client:
                                Key=self.release_prefix + "/Manifest.json",
                                Body=mfst.json().encode("utf-8"),
                                ContentType="application/json")
+
+    def get_object(self, filename):
+        key = "/".join(filter(None, (self.config.prefix.strip("/"), filename)))
+        return self.client.get_object(Bucket=self.config.bucket, Key=key)
+
+    def get_manifest(self) -> Manifest:
+        body = self.get_object("Manifest.json")["Body"]
+        try:
+            return Manifest.parse_raw(body.read())
+        finally:
+            body.close()
